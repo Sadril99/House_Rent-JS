@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <title>Profile</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <style>
+        main {
+            padding: 50px;
+            color: #866850;
+        }
+
+        #form-cover {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .home-form {
+            margin-top: 30px;
+            width: 600px;
+            padding: 20px;
+            background-color: #a17d60;
+            color: white;
+            border-radius: 8px;
+        }
+
+        .home-form div {
+            margin-bottom: 15px;
+        }
+
+        .home-form label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .home-form input,
+        .home-form select,
+        .home-form textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        .home-form button {
+            padding: 10px 15px;
+            background-color: #ffffff;
+            color: black;
+            letter-spacing: 2px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            border: 1px solid black;
+        }
+
+        #homes {
+            width: 100%;
+            text-align: center;
+            border: 1px solid black;
+
+            & thead td {
+                padding: 30px;
+                font-weight: bold;
+            }
+
+            & img {
+                width: 200px;
+            }
+
+
+            & tr {
+                border: 1px solid black;
+            }
+
+            #image {
+                width: 200px;
+            }
+
+            & td {
+                width: 20%;
+                padding: 5px;
+                border: 1px solid black;
+            }
+        }
+        #add-button{
+            background-color: #866850;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <nav id="navbar"></nav>
+
+
+    <main id="main">
+        <span style="display: flex; gap: 10px; margin: 10px;">
+            <h1>Hi <span id="email"></span></h1>
+            <button id="add-button" onclick="window.location.href = 'addHome.html'"> Add House</button>
+        </span>
+
+        <section>
+
+            <h3>Your Houses </h3>
+            <table id="homes">
+                <thead>
+                    <tr>
+                        <td>House Name</td>
+                        <td>Description</td>
+                        <td>Review</td>
+                        <td>Condition</td>
+                        <td>Operation</td>
+                    </tr>
+                </thead>
+            </table>
+        </section>
+
+
+
+
+    </main>
+
+    <footer id="footer"></footer>
+    <script src="script/main.js"></script>
+    <script>
+        let url;
+
+        url = 'https://rentwebsite.onrender.com'
+        url = 'http://localhost:3000'
+
+        let userinfo = JSON.parse(localStorage.getItem('user')) || null;
+
+        if (!userinfo) {
+            document.getElementById("main").innerHTML = "User Not found";
+            window.location.href = "signup.html";
+        } else {
+            console.log(userinfo);
+            document.getElementById('email').innerText = userinfo.username || userinfo.email;
+       }
+
+
+
+
+
+        const showData = () => {
+            fetch(`${url}/homes?email=${userinfo.email || userinfo.username}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Homes:', data);
+                    console.log(data);
+                    if (data.length) {
+                        data.map((element) => {
+                            let data = document.createElement('tr')
+                            data.innerHTML = `
+                            
+                            <td>${element.title}</td>
+                            <td>${element.description}</td>
+                            <td>
+                                <a href="product.html?product=${element._id}" >See Reviews</a>
+                            </td>
+                            <td>${element.condition}</td>
+                            <td>
+                               <a href="#" onclick="deleteProduct('${element._id}')">Delete</a>
+
+                            </td>
+                            `
+                            document.getElementById('homes').appendChild(data)
+
+                        })
+                    } else {
+                        document.getElementById('homes').innerHTML = `
+                            <center>No Houses To Show</center>
+                        `
+
+                    }
+                    // Code to display the homes data on the webpage can be added here
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+
+        };
+
+        async function deleteProduct(productId) {
+            try {
+                const response = await fetch(`${url}/products/${productId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    console.log(response);
+                    throw new Error('Network response was not ok');
+                }
+
+                const data = await response.json();
+                console.log('Product deleted successfully:', data);
+                window.location.reload();
+
+            } catch (error) {
+                console.error('Error deleting product:', error);
+            }
+        }
+
+        showData();
+
+    </script>
+    <script>
+
+        if (user) {
+
+            if (user.role == 'seller') {
+
+                document.getElementById('navbar').innerHTML =
+                    `
+                <a href='index.html'><h1>RUMAH</h1> </a>
+                <ul>
+                    
+                    <a href="about.html">
+                        <li>About</li>
+                        </a>
+                        
+                        <a href="UserProfile.html?id=${user.email}">
+                            <li>Profile</li>
+                            </a>
+                            
+                            <a href="editProfile.html">
+                                <li>Edit</li>
+                                </a>
+                                <a>
+                                    <li id="logout" onclick="Logout()">Logout</li>    
+                                    </a>
+                                    
+                                    </ul>   
+                                    `
+            }
+
+            if (user.role == "buyer") {
+
+                document.getElementById('navbar').innerHTML =
+                    `
+                            <a href='index.html'><h1>RUMAH</h1> </a>
+                            <ul>
+                                
+                                <a href="about.html">
+                                    <li>About</li>
+                                    </a>
+                                     <a href="editProfile.html">
+                                <li>Edit</li>
+                                </a>
+                                                         <a href="UserProfile.html?id=${user.email}"><li>Profile</li></a>
+
+                                      
+                                            
+                                            <a>
+                <li id="logout" onclick="Logout()">Logout</li>    
+            </a>
+            
+            </ul>
+            `
+            }
+        }
+        else {
+            document.getElementById('navbar').innerHTML =
+                `
+<a href='index.html'> <h1>RUMAH</h1> </a>
+<ul>
+        <a href="login.html">
+            <li>Login</li>
+            </a>
+        <a href="signup.html">
+             <li>Signup</li>
+        </a>
+        <a href="about.html">
+            <li>About</li>
+            </a>
+             
+`
+
+        }
+
+    </script>
+</body>
+
+</html>

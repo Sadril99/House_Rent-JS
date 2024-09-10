@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Make Review</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial;
+        }
+
+        .fa {
+            font-size: 25px;
+        }
+
+        .checked {
+            color: orange;
+        }
+
+
+        .rating:not(:checked)>input {
+            position: absolute;
+            appearance: none;
+        }
+
+        .rating:not(:checked)>label {
+            float: right;
+            cursor: pointer;
+            font-size: 30px;
+            color: #666;
+        }
+
+        .rating:not(:checked)>label:before {
+            content: '★';
+        }
+
+        .rating>input:checked+label:hover,
+        .rating>input:checked+label:hover~label,
+        .rating>input:checked~label:hover,
+        .rating>input:checked~label:hover~label,
+        .rating>label:hover~input:checked~label {
+            color: #e58e09;
+        }
+
+        .rating:not(:checked)>label:hover,
+        .rating:not(:checked)>label:hover~label {
+            color: #ff9e0b;
+        }
+
+        .rating>input:checked~label {
+            color: #ffa723;
+        }
+
+        #main-card {
+            display: flex;
+            align-items: center;
+
+            & div {
+                width: 50%;
+                padding: 10px;
+
+                & img {
+                    width: 90%;
+                    border-radius: 30px;
+                }
+            }
+        }
+
+        #main-text {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+
+            .button-box {
+                display: flex;
+                gap: 10px;
+
+                & button {
+                    background-color: #a17d60;
+                    padding: 10px 10px;
+                    border: 1px solid white;
+                    border-radius: 10px;
+
+                    & a {
+                        color: white;
+                        text-decoration: none;
+                    }
+                }
+            }
+        }
+
+
+
+        #from-wraper {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            align-items: center;
+            align-items: center;
+
+            & form {
+                border: 1px solid #a17d60;
+                background-color: #a17d60;
+                border-radius: 20px;
+
+                display: flex;
+                flex-direction: column;
+                width: 70%;
+                padding: 50px;
+                margin: 50px;
+                color: white;
+                align-items: center;
+
+                &>div {
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: center;
+                    width: 100%;
+
+
+                    &>.label {
+                        padding: 5px 0px;
+                    }
+                }
+
+                .rating-box {
+                    display: flex;
+                    align-items: center;
+                    flex-direction: row;
+                    justify-content: space-between;
+
+                }
+
+                .rating {
+                    align-items: start;
+                    display: flex;
+                    flex-direction: row-reverse;
+                }
+
+                & input,
+                textarea,
+                button {
+                    width: 100%;
+                    padding: 5px 10px;
+                    border-radius: 5px;
+                }
+
+                & button {
+                    border: 1px solid black;
+                }
+            }
+        }
+
+        @media screen and (max-width:700px) {
+            #main-card {
+                width: 100%;
+                align-items: center;
+                flex-wrap: wrap;
+
+                &>div {
+                    width: 100%;
+                }
+
+                #img-box {
+                    display: flex;
+                    justify-content: center;
+
+                }
+            }
+        }
+
+        @media screen and (max-width:600px) {
+            #from-wraper {
+                border: 1px solid red;
+
+                & form {
+                    padding: 30px;
+
+                    & h1 {
+                        font-size: large;
+                    }
+                }
+            }
+        }
+    </style>
+</head>
+
+
+
+<body>
+
+
+
+
+    <div id="from-wraper">
+        <nav id="navbar"></nav>
+        <form id="reviewForm">
+            <div>
+                <center>
+                    <h1>Your Review About it</h1>
+                </center>
+            </div>
+            <div>
+                <label class="label" value="hidden"></label>
+                <input style="border: 1px solid black;" value="..." placeholder="Title of Your Review" type="hidden"
+                    for="title" id="title" name="title" required>
+            </div>
+            <div>
+                <label class="label" for="review">Review:</label>
+                <textarea id="review" placeholder="Description of your review" name="review" rows="4"
+                    required></textarea>
+            </div>
+
+            <div class="rating-box">
+                <div>
+                    <p>Rating:</p>
+                </div>
+                <div class="rating">
+                    <input value="5" name="rate" id="star5" type="radio">
+                    <label title="text" for="star5"></label>
+                    <input value="4" name="rate" id="star4" type="radio">
+                    <label title="text" for="star4"></label>
+                    <input value="3" name="rate" id="star3" type="radio" checked="">
+                    <label title="text" for="star3"></label>
+                    <input value="2" name="rate" id="star2" type="radio">
+                    <label title="text" for="star2"></label>
+                    <input value="1" name="rate" id="star1" type="radio">
+                    <label title="text" for="star1"></label>
+                </div>
+            </div>
+            <div>
+                <center>
+                    <p style="color: white;" id="error"></p>
+                </center>
+            </div>
+            <div>
+                <button id="submitReview">Submit Review</button>
+            </div>
+        </form>
+    </div>
+
+
+    <footer id="footer"></footer>
+
+    <script src="script/main.js"></script>
+    <script>
+
+        const url = "http://localhost:3000"
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const productValue = urlParams.get('product');
+
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const ratingInputs = document.querySelectorAll('.rating input');
+
+            // Function to get the selected rating value
+            function getSelectedRating() {
+                let selectedValue = null;
+                ratingInputs.forEach(input => {
+                    if (input.checked) {
+                        selectedValue = input.value;
+                    }
+                });
+                return selectedValue;
+            }
+
+            const submitButton = document.getElementById('submitReview');
+
+            submitButton.addEventListener('click', async (e) => {
+                e.preventDefault();
+
+                const title = document.getElementById('title').value;
+                const review = document.getElementById('review').value;
+                const rating = getSelectedRating();
+                const productId = productValue; // Assuming productValue is defined globally or obtained elsewhere
+
+                const user = JSON.parse(localStorage.getItem('user')) || { email: 'Anonymous' }
+
+                const reviewData = {
+                    title: title,
+                    review: review,
+                    rating: rating,
+                    productId: productId,
+                    email: user.email || user.username
+                };
+
+                const response = await fetch(`${url}/review`, { // Use relative URL assuming same origin
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(reviewData)
+                });
+
+                document.getElementById('error').innerHTML = ''
+
+
+                if (!response.ok) {
+
+                    throw new Error('Error submitting review');
+                }
+
+                if (response.status == 201) {
+                    document.getElementById('error').innerHTML = 'Fill all the Fields'
+                }
+                if (response.status == 500) {
+                    document.getElementById('error').innerHTML = 'Internal Database Error'
+                }
+                if (response.status == 200) {
+                    document.getElementById('error').innerHTML = 'Review Submitted'
+
+                    alert('your review is sent to the house owner')
+                    window.location.href = 'UserProfile.html?id='+user.email
+                }
+
+
+                // Optionally reset form fields
+                document.getElementById('title').value = '';
+                document.getElementById('review').value = '';
+
+                // Reset radio buttons if needed
+                const ratingInputs = document.querySelectorAll('.rating input');
+                ratingInputs.forEach(input => {
+                    input.checked = false;
+                });
+
+
+            });
+        });
+
+
+
+
+
+        if (user) {
+
+            if (user.role == 'seller') {
+
+                document.getElementById('navbar').innerHTML =
+                    `
+        <a href='index.html'><h1>RUMAH</h1> </a>
+        <ul>
+            
+            <a href="about.html">
+                <li>About</li>
+                </a>
+                
+                <a href="UserProfile.html?id=${user.email}">
+                    <li>Profile</li>
+                    </a>
+                    
+                    <a href="editProfile.html">
+                        <li>Edit</li>
+                        </a>
+                        <a>
+                            <li id="logout" onclick="Logout()">Logout</li>    
+                            </a>
+                            
+                            </ul>   
+                            `
+            }
+
+            if (user.role == "buyer") {
+
+                document.getElementById('navbar').innerHTML =
+                    `
+                    <a href='index.html'><h1>RUMAH</h1> </a>
+                    <ul>
+                        
+                        <a href="about.html">
+                            <li>About</li>
+                            </a>
+                             <a href="editProfile.html">
+                                <li>Edit</li>
+                                </a>
+                                                <a href="UserProfile.html?id=${user.email}"><li>Profile</li></a>
+
+                                    
+                                    <a>
+        <li id="logout" onclick="Logout()">Logout</li>    
+    </a>
+    
+    </ul>
+    `
+            }
+        }
+        else {
+            document.getElementById('navbar').innerHTML =
+                `
+<a href='index.html'> <h1>RUMAH</h1> </a>
+<ul>
+<a href="login.html">
+    <li>Login</li>
+    </a>
+<a href="signup.html">
+     <li>Signup</li>
+</a>
+<a href="about.html">
+    <li>About</li>
+    </a>
+     
+`
+
+        }
+
+
+    </script>
+</body>
+
+</html>

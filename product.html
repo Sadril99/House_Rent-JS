@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial;
+        }
+
+        .fa {
+            font-size: 25px;
+        }
+
+        .checked {
+            color: orange;
+        }
+
+
+        .rating:not(:checked)>input {
+            position: absolute;
+            appearance: none;
+        }
+
+        .rating:not(:checked)>label {
+            float: right;
+            cursor: pointer;
+            font-size: 30px;
+            color: #666;
+        }
+
+        .rating:not(:checked)>label:before {
+            content: '★';
+        }
+
+        .rating>input:checked+label:hover,
+        .rating>input:checked+label:hover~label,
+        .rating>input:checked~label:hover,
+        .rating>input:checked~label:hover~label,
+        .rating>label:hover~input:checked~label {
+            color: #e58e09;
+        }
+
+        .rating:not(:checked)>label:hover,
+        .rating:not(:checked)>label:hover~label {
+            color: #ff9e0b;
+        }
+
+        .rating>input:checked~label {
+            color: #ffa723;
+        }
+
+        #main-card {
+            display: flex;
+            align-items: center;
+
+            & div {
+                width: 50%;
+                padding: 10px;
+
+                & img {
+                    width: 90%;
+                    border-radius: 30px;
+                }
+            }
+        }
+
+        #main-text {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+
+            .button-box {
+                display: flex;
+                gap: 10px;
+
+                & button {
+                    background-color: #a17d60;
+                    padding: 10px 10px;
+                    border: 1px solid white;
+                    border-radius: 10px;
+
+                    & a {
+                        color: white;
+                        text-decoration: none;
+                    }
+                }
+            }
+        }
+
+
+
+        #from-wraper {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            align-items: center;
+            align-items: center;
+
+            & form {
+                border: 1px solid #a17d60;
+                background-color: #a17d60;
+                border-radius: 20px;
+
+                display: flex;
+                flex-direction: column;
+                width: 70%;
+                padding: 50px;
+                margin: 50px;
+                color: white;
+                align-items: center;
+
+                &>div {
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: center;
+                    width: 100%;
+
+
+                    &>.label {
+                        padding: 5px 0px;
+                    }
+                }
+
+                .rating-box {
+                    display: flex;
+                    align-items: center;
+                    flex-direction: row;
+                    justify-content: space-between;
+
+                }
+
+                .rating {
+                    align-items: start;
+                    display: flex;
+                    flex-direction: row-reverse;
+                }
+
+                & input,
+                textarea,
+                button {
+                    width: 100%;
+                    padding: 5px 10px;
+                    border-radius: 5px;
+                }
+
+                & button {
+                    border: 1px solid black;
+                }
+            }
+        }
+
+        @media screen and (max-width:700px) {
+            #main-card {
+                width: 100%;
+                align-items: center;
+                flex-wrap: wrap;
+
+                &>div {
+                    width: 100%;
+                }
+
+                #img-box {
+                    display: flex;
+                    justify-content: center;
+
+                }
+            }
+        }
+
+        @media screen and (max-width:600px) {
+            #from-wraper {
+                border: 1px solid red;
+
+                & form {
+                    padding: 30px;
+
+                    & h1 {
+                        font-size: large;
+                    }
+                }
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <nav id="navbar"></nav>
+
+    <main>
+
+
+        <section id="main-card"></section>
+
+       
+
+
+   
+
+    </main>
+
+    <footer id="footer"></footer>
+    <script src="script/main.js"></script>
+    <script>
+        let url;
+
+        url = 'http://localhost:3000'
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const productValue = urlParams.get('product');
+
+        const showCard = async (id) => {
+            try {
+                const response = await fetch(`${url}/cards/${id}`); // Replace with your endpoint
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                const data = await response.json();
+                setMainCard(data);
+            } catch (error) {
+                console.error('Error fetching card data:', error);
+                // Handle error scenarios
+            }
+        };
+
+        showCard(productValue);
+
+        function setMainCard(data) {
+
+            console.log(data);
+            document.getElementById('main-card').innerHTML = `
+        <div id="img-box">
+            <img id="image" src="${data.imageUrl}" alt="">
+        </div>
+        <div id="main-text">
+            <h1>${data.title}</h1>
+            <small>Author Name: ${data.contactName}</small>
+            <p>${data.description}</p>
+
+            <p>Rooms: ${data.rooms}</p>
+            <p>Bathrooms: ${data.bathrooms}</p>
+            <p>Location: ${data.location}</p>
+            <p>Condition: ${data.condition}</p>
+            
+
+            <div id="button-box"class='button-box'>
+                <button>
+                    <a href="UserProfile.html?id='${data.contactEmail}'">See&nbsp;Profilel</a>
+                </button>
+
+                <button id='take-it-button'>
+                    <a onclick="takeHouse('${data._id}')">Take&nbsp;it</a>
+                </button>
+                    
+            <div>
+        </div>
+    `;
+
+
+            if (data.available != 0) {
+                document.getElementById('take-it-button').style.display = "block"
+            } else {
+                document.getElementById('take-it-button').style.display = "none"
+            }
+
+        }
+
+      
+        function takeHouse(id) {
+            let user = JSON.parse(localStorage.getItem('user'));
+
+            if (!user) {
+                document.getElementById('button-box').innerHTML = `
+            <small style='color:red;'>
+                First Login/Signup to Take the House
+            </small>
+        `;
+            }else if (user.role == 'seller'){
+                alert("House  seller Can't Take House")
+            } else {
+                fetch(`${url}/addRenter`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        email: user.email,
+                        house: id  // Ensure 'id' is properly passed to match server-side expectations
+                    })
+                })
+                    .then(response => {
+                        if (!response.ok) {
+                            console.log(response);
+                            throw new Error('Network response was not ok.');
+                        }
+                        return response.json(); // Attempt to parse response as JSON
+                    })
+                    .then(data => {
+                        console.log(data); // Log parsed JSON data for inspection
+                        if (data.message === 'Home updated successfully') {
+                            alert('Your Request To set the House is sent to the House Admin')
+                            window.location.href = `UserProfile.html?id=${user.email}`;
+                        } else {
+                            document.getElementById('button-box').innerHTML = `
+                    <small style='color:red;'>
+                        Error in taking the house. Please try again.
+                    </small>
+                `;
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error fetching data:', error);
+                        document.getElementById('button-box').innerHTML = `
+                <small style='color:red;'>
+                    Failed to fetch data. Please check your connection and try again.
+                </small>
+            `;
+                    });
+            }
+        }
+
+
+
+
+    </script>
+    <script>
+        if (user) {
+
+            if (user.role == 'seller') {
+
+                document.getElementById('navbar').innerHTML =
+                    `
+                <a href='index.html'><h1>RUMAH</h1> </a>
+                <ul>
+                    
+                    <a href="about.html">
+                        <li>About</li>
+                        </a>
+                        
+                        <a href="UserProfile.html?id=${user.email}.html">
+                            <li>Profile</li>
+                            </a>
+                            
+                            <a href="editProfile.html">
+                                <li>Edit</li>
+                                </a>
+                                <a>
+                                    <li id="logout" onclick="Logout()">Logout</li>    
+                                    </a>
+                                    
+                                    </ul>   
+                                    `
+            }
+
+            if (user.role == "buyer") {
+
+                document.getElementById('navbar').innerHTML =
+                    `
+                            <a href='index.html'><h1>RUMAH</h1> </a>
+                            <ul>
+                                
+                                <a href="about.html">
+                                    <li>About</li>
+                                    </a>
+                                        <div id="search-box">
+                                            <input  type="search" placeholder='Search...' id="search">
+                                            <i onclick="search()" class="bi bi-search"></i>
+                                            </div>
+                                            
+                                            <a>
+                <li id="logout" onclick="Logout()">Logout</li>    
+            </a>
+            
+            </ul>
+            `
+            }
+        }
+        else {
+            document.getElementById('navbar').innerHTML =
+                `
+<a href='index.html'> <h1>RUMAH</h1> </a>
+<ul>
+        <a href="login.html">
+            <li>Login</li>
+            </a>
+        <a href="signup.html">
+             <li>Signup</li>
+        </a>
+        <a href="about.html">
+            <li>About</li>
+            </a>
+             
+`
+
+        }
+
+        if (user) {
+
+            if (user.role == 'seller') {
+
+                document.getElementById('navbar').innerHTML =
+                    `
+                <a href='index.html'><h1>RUMAH</h1> </a>
+                <ul>
+                    
+                    <a href="about.html">
+                        <li>About</li>
+                        </a>
+                        
+                        <a href="UserProfile.html?id=${user.email}">
+                            <li>Profile</li>
+                            </a>
+                            
+                            <a href="editProfile.html">
+                                <li>Edit</li>
+                                </a>
+                                <a>
+                                    <li id="logout" onclick="Logout()">Logout</li>    
+                                    </a>
+                                    
+                                    </ul>   
+                                    `
+            }
+
+            if (user.role == "buyer") {
+
+                document.getElementById('navbar').innerHTML =
+                    `
+                            <a href='index.html'><h1>RUMAH</h1> </a>
+                            <ul>
+                                
+                                <a href="about.html">
+                                    <li>About</li>
+                                    </a>
+                                     <a href="editProfile.html">
+                                <li>Edit</li>
+                                </a>
+                                    
+                                                        <a href="UserProfile.html?id=${user.email}"><li>Profile</li></a>
+
+                                            
+                                            <a>
+                <li id="logout" onclick="Logout()">Logout</li>    
+            </a>
+            
+            </ul>
+            `
+            }
+        }
+        else {
+            document.getElementById('navbar').innerHTML =
+                `
+<a href='index.html'> <h1>RUMAH</h1> </a>
+<ul>
+        <a href="login.html">
+            <li>Login</li>
+            </a>
+        <a href="signup.html">
+             <li>Signup</li>
+        </a>
+        <a href="about.html">
+            <li>About</li>
+            </a>
+             
+`
+        }
+
+    </script>
+</body>
+
+</html>

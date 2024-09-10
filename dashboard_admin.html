@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <style>
+       body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            font-size: x-small;
+        }
+
+        /* Table styling */
+        table {
+            width: 100vw; /* Full viewport width */
+            margin-bottom: 10px;
+            overflow-x: scroll;
+            border-collapse: collapse;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Optional: Add box shadow for a card-like effect */
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        /* Section styling */
+        .section {
+            margin-bottom: 30px;
+            padding: 5px; /* Optional: Add padding to sections */
+            background-color: #fff; /* Optional: Add background color for sections */
+            border-radius: 8px; /* Optional: Add rounded corners for sections */
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Optional: Add box shadow for sections */
+        }
+
+        /* Delete button styling */
+        .delete-btn {
+            background-color: #f44336;
+            color: white;
+            padding: 8px 12px;
+            border: none;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            table {
+                width: 100%; /* Full width on smaller screens */
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Dashboard</h1>
+
+    <div id="homes-section" class="section">
+        <h2>All Homes</h2>
+        <table id="homes-table">
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Title</th>
+                    <th>Description</th>
+                    <th>Location</th>
+                    <th>Condition</th>
+                    <th>Room</th>
+                    <th>Bathrooms</th>
+                    <th>Price</th>
+                    <th>Image</th>
+                    <th>Contact Name</th>
+                    <th>Contact Email</th>
+                    <th>Contact Phone</th>
+                    <th>Created At</th>
+                    <th>Bad Responce</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Homes data will be dynamically added here -->
+            </tbody>
+        </table>
+    </div>
+
+    <div id="reviews-section" class="section">
+        <h2>All Reviews</h2>
+        <table id="reviews-table">
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Title</th>
+                    <th>Review</th>
+                    <th>Rating</th>
+                    <th>productId</th>
+                    <th>Email</th>
+                    <th>Created At</th>
+                    <th>Is Bad</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Reviews data will be dynamically added here -->
+            </tbody>
+        </table>
+    </div>
+
+    <div id="users-section" class="section">
+        <h2>All Users</h2>
+        <table id="users-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Username</th>
+                    <th>Email</th>
+                    <th>Password</th>
+                    <th>Gender</th>
+                    <th>Phone</th>
+                    <th>Country</th>
+                    <th>Location</th>
+                    <th>Role</th>
+                    <th>Bad Responce</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Users data will be dynamically added here -->
+            </tbody>
+        </table>
+    </div>
+
+    <div id="tenants-section" class="section">
+        <h2>All Tenants</h2>
+        <table id="tenants-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>House ID</th>
+                    <th>Renter Email</th>
+                    <th>Bad Responce</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Tenants data will be dynamically added here -->
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchData('http://localhost:3000/homes', 'homes-table', 'home');
+            fetchData('http://localhost:3000/reviews', 'reviews-table', 'review');
+            fetchData('http://localhost:3000/users', 'users-table', 'user');
+            fetchData('http://localhost:3000/tenants', 'tenants-table', 'tenant');
+        });
+
+        async function fetchData(url, tableId, type) {
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+                const tableBody = document.getElementById(tableId).getElementsByTagName('tbody')[0];
+
+                if (data.length === 0) {
+                    const messageRow = tableBody.insertRow();
+                    const messageCell = messageRow.insertCell();
+                    messageCell.colSpan = type === 'tenant' ? 3 : 10; // Adjust colspan based on number of columns
+                    messageCell.textContent = 'No data available';
+                    return;
+                }
+
+                data.forEach(item => {
+                    const row = tableBody.insertRow();
+                    Object.values(item).forEach((value, index) => {
+                        const cell = row.insertCell();
+                        cell.textContent = value;
+                        if (index === Object.values(item).length - 1) {
+                            const actionCell = row.insertCell();
+                            const deleteBtn = document.createElement('button');
+                            deleteBtn.textContent = 'Delete';
+                            deleteBtn.classList.add('delete-btn');
+                            deleteBtn.addEventListener('click', () => deleteItem(type, item._id));
+                            actionCell.appendChild(deleteBtn);
+                        }
+                    });
+                });
+            } catch (error) {
+                console.error('Error fetching data:', error);
+            }
+        }
+
+        async function deleteItem(type, itemId) {
+            try {
+                const response = await fetch(`http://localhost:3000/${type}s/${itemId}`, {
+                    method: 'DELETE'
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to delete item');
+                }
+
+                // Remove row from table on successful deletion
+                const table = document.getElementById(`${type}s-table`);
+                const tbody = table.getElementsByTagName('tbody')[0];
+                const rows = tbody.getElementsByTagName('tr');
+                for (let i = 0; i < rows.length; i++) {
+                    const row = rows[i];
+                    if (row.cells[row.cells.length - 1].querySelector('.delete-btn') !== null) {
+                        const btn = row.cells[row.cells.length - 1].querySelector('.delete-btn');
+                        if (btn.dataset.itemId === itemId) {
+                            tbody.removeChild(row);
+                            break;
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error('Error deleting item:', error);
+            }
+        }
+    </script>
+</body>
+</html>
